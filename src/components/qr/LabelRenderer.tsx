@@ -11,8 +11,8 @@ export const LabelRenderer = forwardRef<HTMLDivElement, LabelRendererProps>(
     return (
       <div 
         ref={ref}
-        className="bg-white text-black border-[3px] border-black p-6 w-[800px] font-sans relative"
-        style={{ boxSizing: 'border-box' }}
+        className="bg-white text-black p-6 font-sans relative"
+        style={{ boxSizing: 'border-box', border: '3px solid black', width: '800px', margin: '0 auto' }}
       >
         <div className="flex justify-between items-start">
           {/* Left Column */}

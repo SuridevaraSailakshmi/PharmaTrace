@@ -106,7 +106,16 @@ export default function WorkerQrPage() {
   const downloadLabel = async () => {
     if (!labelRef.current || !result) return;
     try {
-      const dataUrl = await htmlToImage.toPng(labelRef.current, { quality: 1, backgroundColor: '#ffffff' });
+      const dataUrl = await htmlToImage.toPng(labelRef.current, { 
+        quality: 1, 
+        backgroundColor: '#ffffff',
+        width: 800,
+        style: {
+          transform: 'scale(1)',
+          margin: '0',
+          border: '3px solid black'
+        }
+      });
       const link = document.createElement('a');
       link.download = `${result.productReferenceCode}_Label.png`;
       link.href = dataUrl;
