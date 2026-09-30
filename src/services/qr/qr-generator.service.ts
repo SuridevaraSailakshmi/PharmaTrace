@@ -18,7 +18,7 @@ export class QRGeneratorService {
       // margin: 1 gives a tight SVG.
       const svgString = await QRCode.toString(payload, {
         type: 'svg',
-        errorCorrectionLevel: 'H',
+        errorCorrectionLevel: 'L',
         margin: 1,
         color: {
           dark: '#000000',
@@ -45,7 +45,7 @@ export class QRGeneratorService {
 
     try {
       const dataUrl = await QRCode.toDataURL(payload, {
-        errorCorrectionLevel: 'H',
+        errorCorrectionLevel: 'L',
         margin: 1,
         color: {
           dark: '#000000',

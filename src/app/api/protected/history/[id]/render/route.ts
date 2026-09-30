@@ -23,8 +23,9 @@ export async function GET(
     
     // Construct the payload exact same way as generation to make it a scannable URL
     const jsonString = JSON.stringify(result.payload);
+    const base64UrlString = Buffer.from(jsonString).toString('base64url');
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const payloadStr = `${baseUrl}/verify?data=${encodeURIComponent(jsonString)}`;
+    const payloadStr = `${baseUrl}/verify?data=${base64UrlString}`;
 
     // Regenerate QR representation cleanly (deterministic generation guarantees identical matrix)
     const svgRes = await QRGeneratorService.generateSvg(payloadStr);

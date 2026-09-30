@@ -55,8 +55,10 @@ export class QRPayloadService {
 
     // 4. Return strictly deterministic JSON serialization wrapped in a scannable URL.
     // This allows phone cameras to open the verification page natively.
+    // Using base64url encoding makes the QR code significantly less dense than URL encoding.
     const jsonString = JSON.stringify(payloadObject);
+    const base64UrlString = Buffer.from(jsonString).toString('base64url');
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    return `${baseUrl}/verify?data=${encodeURIComponent(jsonString)}`;
+    return `${baseUrl}/verify?data=${base64UrlString}`;
   }
 }
