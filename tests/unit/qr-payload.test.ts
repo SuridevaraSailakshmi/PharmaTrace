@@ -29,7 +29,9 @@ describe('QRPayloadService', () => {
     };
 
     const payload = QRPayloadService.buildPayload(mockForm, formData, validPrc, validSscc);
-    const parsed = JSON.parse(payload);
+    const urlObj = new URL(payload);
+    const dataParam = urlObj.searchParams.get('data');
+    const parsed = JSON.parse(decodeURIComponent(dataParam!));
 
     expect(parsed.v).toBe(1);
     expect(parsed.prc).toBe(validPrc);
@@ -53,7 +55,9 @@ describe('QRPayloadService', () => {
     };
 
     const payload = QRPayloadService.buildPayload(mockForm, formData, validPrc, validSscc);
-    const parsed = JSON.parse(payload);
+    const urlObj = new URL(payload);
+    const dataParam = urlObj.searchParams.get('data');
+    const parsed = JSON.parse(decodeURIComponent(dataParam!));
 
     expect(parsed.data.f5).toBeNull(); // Missing but included
   });
@@ -65,7 +69,9 @@ describe('QRPayloadService', () => {
     };
 
     const payload = QRPayloadService.buildPayload(mockForm, formData, validPrc, validSscc);
-    const parsed = JSON.parse(payload);
+    const urlObj = new URL(payload);
+    const dataParam = urlObj.searchParams.get('data');
+    const parsed = JSON.parse(decodeURIComponent(dataParam!));
 
     expect(parsed.data.f5).toBe(0);
   });

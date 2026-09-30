@@ -154,8 +154,8 @@ export default function WorkerQrPage() {
           </p>
         </div>
 
-        <div className="bg-white p-8 rounded-xl shadow-lg border border-slate-200 print-mode">
-          <div ref={labelRef} className="bg-white">
+        <div className="bg-white p-4 sm:p-8 rounded-xl shadow-lg border border-slate-200 print-mode overflow-x-auto max-w-full">
+          <div ref={labelRef} className="bg-white inline-block min-w-max">
             <LabelRenderer 
               qrSvg={result.qrRepresentationSvg}
               prc={result.productReferenceCode}

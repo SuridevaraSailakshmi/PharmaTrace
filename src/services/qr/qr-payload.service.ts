@@ -53,10 +53,10 @@ export class QRPayloadService {
       data: qrData
     };
 
-    // 4. Return strictly deterministic JSON serialization.
-    // Standard JSON.stringify preserves key insertion order.
-    // The keys v, prc, sscc, data are inserted in a fixed order.
-    // Inside `data`, fields are inserted in sortOrder.
-    return JSON.stringify(payloadObject);
+    // 4. Return strictly deterministic JSON serialization wrapped in a scannable URL.
+    // This allows phone cameras to open the verification page natively.
+    const jsonString = JSON.stringify(payloadObject);
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    return `${baseUrl}/verify?data=${encodeURIComponent(jsonString)}`;
   }
 }
