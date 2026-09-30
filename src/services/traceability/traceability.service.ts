@@ -113,7 +113,8 @@ export class TraceabilityService {
     );
     const urlObj = new URL(qrPayloadStr);
     const dataParam = urlObj.searchParams.get('data');
-    const qrPayloadObj = JSON.parse(decodeURIComponent(dataParam || '{}'));
+    const decodedJsonStr = dataParam ? Buffer.from(dataParam, 'base64url').toString('utf8') : '{}';
+    const qrPayloadObj = JSON.parse(decodedJsonStr);
 
     // 6. Generate QR Images safely in memory before starting DB transaction
     await QRGeneratorService.generateSvg(qrPayloadStr);
