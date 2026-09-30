@@ -49,8 +49,8 @@ function VerifyContent() {
     }
 
     try {
-      const decoded = decodeURIComponent(dataParam);
-      const parsed = JSON.parse(decoded) as QRPayload;
+      // Next.js searchParams already URL-decodes the parameter value, so we do NOT use decodeURIComponent
+      const parsed = JSON.parse(dataParam) as QRPayload;
       
       if (!parsed.v || !parsed.prc || !parsed.sscc || !parsed.data) {
         throw new Error('Invalid QR payload format.');

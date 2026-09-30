@@ -21,8 +21,10 @@ export async function GET(
     // Fetch the detail record
     const result = await QRHistoryService.getRecord(user.id, resolvedParams.id);
     
-    // Convert the payload object back to JSON string for generation
-    const payloadStr = JSON.stringify(result.payload);
+    // Construct the payload exact same way as generation to make it a scannable URL
+    const jsonString = JSON.stringify(result.payload);
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const payloadStr = `${baseUrl}/verify?data=${encodeURIComponent(jsonString)}`;
 
     // Regenerate QR representation cleanly (deterministic generation guarantees identical matrix)
     const svgRes = await QRGeneratorService.generateSvg(payloadStr);
