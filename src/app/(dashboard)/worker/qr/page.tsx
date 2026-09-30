@@ -226,7 +226,6 @@ export default function WorkerQrPage() {
               <Download className="mr-2 h-5 w-5 text-slate-700" /> Download PNG
             </Button>
           </div>
-        </div>
 
         <div className="text-center pt-4">
           <Button variant="ghost" onClick={resetFlow} className="text-slate-600 hover:text-slate-900">

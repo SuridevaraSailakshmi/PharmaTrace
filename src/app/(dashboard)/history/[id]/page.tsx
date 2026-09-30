@@ -1,10 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Printer, ArrowLeft, Database, QrCode } from 'lucide-react';
+import { Printer, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { LabelRenderer } from '@/components/qr/LabelRenderer';
 import { useRef } from 'react';
@@ -164,9 +163,6 @@ export default function HistoryDetailPage({ params }: { params: Promise<{ id: st
             </div>
           </div>
         </div>
-      </div>
-
-
     </div>
   );
 }
