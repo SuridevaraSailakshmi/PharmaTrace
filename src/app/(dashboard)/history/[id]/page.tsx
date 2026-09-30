@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Printer, ArrowLeft, Database, QrCode } from 'lucide-react';
 import Link from 'next/link';
+import { LabelRenderer } from '@/components/qr/LabelRenderer';
+import { useRef } from 'react';
 
 interface FormField {
   label: string;
@@ -31,6 +33,32 @@ export default function HistoryDetailPage({ params }: { params: Promise<{ id: st
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [svgUrl, setSvgUrl] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const [scaledHeight, setScaledHeight] = useState('auto');
+  const labelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!record || !containerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const padding = window.innerWidth >= 640 ? 64 : 32;
+        const availableWidth = entry.contentRect.width - padding;
+        if (availableWidth > 0 && availableWidth < 800) {
+          const newScale = availableWidth / 800;
+          setScale(newScale);
+          if (labelRef.current) {
+            setScaledHeight(`${labelRef.current.offsetHeight * newScale}px`);
+          }
+        } else {
+          setScale(1);
+          setScaledHeight('auto');
+        }
+      }
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [record]);
 
   const fetchRecord = async (id: string) => {
     try {
@@ -71,6 +99,13 @@ export default function HistoryDetailPage({ params }: { params: Promise<{ id: st
   if (error) return <div className="p-8 text-center text-red-600">{error}</div>;
   if (!record) return <div className="p-8 text-center">Record not found.</div>;
 
+  const payloadData = record.fields.reduce((acc, field) => {
+    if (field.fieldType !== 'system_generated') {
+      acc[field.fieldKey] = field.value || '';
+    }
+    return acc;
+  }, {} as Record<string, string | number>);
+
   return (
     <div className="max-w-4xl mx-auto space-y-6 print:space-y-4">
       <div className="no-print mb-6">
@@ -102,68 +137,33 @@ export default function HistoryDetailPage({ params }: { params: Promise<{ id: st
         </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
-        {/* Identifiers & QR */}
-        <Card className="md:col-span-1 shadow-sm border-[var(--color-border)]">
-          <CardHeader className="bg-[var(--color-surface-muted)] py-4 border-b">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2 text-[var(--color-text-secondary)]">
-              <QrCode className="h-4 w-4" />
-              Identifiers
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6 flex flex-col items-center">
-            {svgUrl ? (
+        {/* Document Label Render */}
+        <div className="md:col-span-3 mt-4">
+          <h2 className="text-lg font-bold tracking-tight mb-4 no-print">Generated Traceability Document</h2>
+          <div 
+            ref={containerRef}
+            className="bg-white p-0 sm:p-0 rounded-xl shadow-lg border border-slate-200 print-mode overflow-hidden max-w-full flex justify-center"
+          >
+            <div className="w-full p-4 sm:p-8" style={{ height: scale < 1 ? scaledHeight : 'auto' }}>
               <div 
-                className="w-48 h-48 mb-6"
-                dangerouslySetInnerHTML={{ __html: svgUrl }} 
-              />
-            ) : (
-              <div className="w-48 h-48 mb-6 bg-gray-100 flex items-center justify-center text-xs text-gray-500">Rendering QR...</div>
-            )}
-            
-            <div className="w-full space-y-4 text-left">
-              <div>
-                <p className="text-xs text-[var(--color-text-muted)] font-medium uppercase tracking-wider mb-1">Product Reference Code</p>
-                <p className="font-mono text-sm font-bold">{record.productReferenceCode}</p>
-              </div>
-              <div>
-                <p className="text-xs text-[var(--color-text-muted)] font-medium uppercase tracking-wider mb-1">SSCC</p>
-                <p className="font-mono text-sm font-bold">{record.sscc}</p>
+                className="origin-top-left sm:origin-top" 
+                style={{ 
+                  transform: `scale(${scale})`, 
+                  width: '800px',
+                  margin: scale < 1 ? '0' : '0 auto'
+                }}
+              >
+                <div ref={labelRef} className="bg-white inline-block">
+                  <LabelRenderer 
+                    qrSvg={svgUrl || ''}
+                    prc={record.productReferenceCode}
+                    payloadData={payloadData}
+                  />
+                </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Dynamic Form Data */}
-        <Card className="md:col-span-2 shadow-sm border-[var(--color-border)]">
-          <CardHeader className="bg-[var(--color-surface-muted)] py-4 border-b flex flex-row justify-between items-center">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2 text-[var(--color-text-secondary)]">
-              <Database className="h-4 w-4" />
-              Form Submission
-            </CardTitle>
-            <Badge variant="outline" className="text-xs font-mono bg-white">
-              {record.form.name}
-            </Badge>
-          </CardHeader>
-          <CardContent className="p-0">
-            <table className="w-full text-sm">
-              <tbody>
-                {record.fields.map((field: FormField, idx: number) => (
-                  <tr key={idx} className="border-b last:border-0">
-                    <td className="py-3 px-4 text-[var(--color-text-muted)] font-medium w-1/3 align-top bg-gray-50/50">
-                      {field.label}
-                    </td>
-                    <td className="py-3 px-4 font-mono text-[var(--color-text-primary)] break-words">
-                      {field.fieldType === 'system_generated' 
-                        ? (field.fieldKey === 'prc' ? record.productReferenceCode : record.sscc) 
-                        : (field.value || '-')}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
 
