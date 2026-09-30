@@ -47,7 +47,11 @@ export default function HistoryDetailPage({ params }: { params: Promise<{ id: st
           const newScale = availableWidth / 800;
           setScale(newScale);
           if (labelRef.current) {
-            setScaledHeight(`${labelRef.current.offsetHeight * newScale}px`);
+            // we need to include the vertical padding in the total height of the padded wrapper!
+            // p-4 = 16px padding (32px total vertical), sm:p-8 = 32px padding (64px total vertical)
+            const paddingY = window.innerWidth >= 640 ? 64 : 32;
+            const scaledLabelHeight = labelRef.current.offsetHeight * newScale;
+            setScaledHeight(`${scaledLabelHeight + paddingY}px`);
           }
         } else {
           setScale(1);
@@ -141,18 +145,18 @@ export default function HistoryDetailPage({ params }: { params: Promise<{ id: st
           <h2 className="text-lg font-bold tracking-tight mb-4 no-print">Generated Traceability Document</h2>
           <div 
             ref={containerRef}
-            className="bg-white p-0 sm:p-0 rounded-xl shadow-lg border border-slate-200 print-mode overflow-hidden max-w-full flex justify-center"
+            className="bg-[var(--color-bg-secondary)] p-0 sm:p-0 rounded-xl shadow-inner border border-slate-200 print-mode overflow-hidden max-w-full flex justify-center"
           >
-            <div className="w-full p-4 sm:p-8" style={{ height: scale < 1 ? scaledHeight : 'auto' }}>
+            {/* The outer div has the padded layout and dynamic height that includes padding */}
+            <div className="w-full p-4 sm:p-8 flex justify-center" style={{ height: scale < 1 ? scaledHeight : 'auto' }}>
               <div 
-                className="origin-top-left sm:origin-top" 
+                className="origin-top" 
                 style={{ 
                   transform: `scale(${scale})`, 
-                  width: '800px',
-                  margin: scale < 1 ? '0' : '0 auto'
+                  width: '800px'
                 }}
               >
-                <div ref={labelRef} className="bg-white inline-block">
+                <div ref={labelRef} className="bg-white inline-block shadow-lg ring-1 ring-slate-900/5">
                   <LabelRenderer 
                     qrSvg={svgUrl || ''}
                     prc={record.productReferenceCode}

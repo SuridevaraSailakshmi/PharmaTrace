@@ -111,7 +111,9 @@ export default function WorkerQrPage() {
           setScale(newScale);
           
           if (labelRef.current) {
-            setScaledHeight(`${labelRef.current.offsetHeight * newScale}px`);
+            const paddingY = window.innerWidth >= 640 ? 64 : 32;
+            const scaledLabelHeight = labelRef.current.offsetHeight * newScale;
+            setScaledHeight(`${scaledLabelHeight + paddingY}px`);
           }
         } else {
           setScale(1);
@@ -195,19 +197,18 @@ export default function WorkerQrPage() {
 
         <div 
           ref={containerRef}
-          className="bg-white p-0 sm:p-0 rounded-xl shadow-lg border border-slate-200 print-mode overflow-hidden max-w-full flex justify-center"
+          className="bg-[var(--color-bg-secondary)] p-0 sm:p-0 rounded-xl shadow-inner border border-slate-200 print-mode overflow-hidden max-w-full flex justify-center"
         >
           {/* We apply padding directly here, and wrap the scaled element */}
-          <div className="w-full p-4 sm:p-8" style={{ height: scale < 1 ? scaledHeight : 'auto' }}>
+          <div className="w-full p-4 sm:p-8 flex justify-center" style={{ height: scale < 1 ? scaledHeight : 'auto', paddingBottom: scale < 1 ? '0' : undefined }}>
             <div 
-              className="origin-top-left sm:origin-top" 
+              className="origin-top" 
               style={{ 
                 transform: `scale(${scale})`, 
-                width: '800px',
-                margin: scale < 1 ? '0' : '0 auto'
+                width: '800px'
               }}
             >
-              <div ref={labelRef} className="bg-white inline-block">
+              <div ref={labelRef} className="bg-white inline-block shadow-lg ring-1 ring-slate-900/5">
                 <LabelRenderer 
                   qrSvg={result.qrRepresentationSvg}
                   prc={result.productReferenceCode}

@@ -5,11 +5,41 @@ import { useSearchParams } from 'next/navigation';
 import { LabelRenderer } from '@/components/qr/LabelRenderer';
 import { QRPayload } from '@/services/qr/qr.types';
 import { Card } from '@/components/ui/card';
+import { useRef } from 'react';
 
 function VerifyContent() {
   const searchParams = useSearchParams();
   const [payload, setPayload] = useState<QRPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const [scale, setScale] = useState(1);
+  const [scaledHeight, setScaledHeight] = useState('auto');
+  const containerRef = useRef<HTMLDivElement>(null);
+  const labelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!payload || !containerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const padding = window.innerWidth >= 640 ? 64 : 32;
+        const availableWidth = entry.contentRect.width - padding;
+        if (availableWidth > 0 && availableWidth < 800) {
+          const newScale = availableWidth / 800;
+          setScale(newScale);
+          if (labelRef.current) {
+            const paddingY = window.innerWidth >= 640 ? 64 : 32;
+            const scaledLabelHeight = labelRef.current.offsetHeight * newScale;
+            setScaledHeight(`${scaledLabelHeight + paddingY}px`);
+          }
+        } else {
+          setScale(1);
+          setScaledHeight('auto');
+        }
+      }
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [payload]);
 
   useEffect(() => {
     const dataParam = searchParams.get('data');
@@ -58,13 +88,26 @@ function VerifyContent() {
         <p className="text-slate-600">This digital record represents an immutable snapshot of the product.</p>
       </div>
       
-      <div className="bg-white p-4 sm:p-8 rounded-xl shadow-xl border border-slate-200 overflow-x-auto max-w-full">
-        <div className="inline-block min-w-max">
-          <LabelRenderer 
-            qrSvg=""
-            prc={payload.prc}
-            payloadData={payload.data as Record<string, string | number>}
-          />
+      <div 
+        ref={containerRef}
+        className="bg-[var(--color-bg-secondary)] p-0 sm:p-0 rounded-xl shadow-inner border border-slate-200 print-mode overflow-hidden max-w-full flex justify-center w-full"
+      >
+        <div className="w-full p-4 sm:p-8 flex justify-center" style={{ height: scale < 1 ? scaledHeight : 'auto' }}>
+          <div 
+            className="origin-top" 
+            style={{ 
+              transform: `scale(${scale})`, 
+              width: '800px'
+            }}
+          >
+            <div ref={labelRef} className="bg-white inline-block shadow-lg ring-1 ring-slate-900/5">
+              <LabelRenderer 
+                qrSvg=""
+                prc={payload.prc}
+                payloadData={payload.data as Record<string, string | number>}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
