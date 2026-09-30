@@ -93,6 +93,36 @@ export default function WorkerQrPage() {
   };
 
   const labelRef = React.useRef<HTMLDivElement>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const [scaledHeight, setScaledHeight] = useState('auto');
+
+  useEffect(() => {
+    if (!result || !containerRef.current) return;
+    
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        // We have p-4 (32px total) on small screens, sm:p-8 (64px total) on larger
+        const padding = window.innerWidth >= 640 ? 64 : 32;
+        const availableWidth = entry.contentRect.width - padding;
+        
+        if (availableWidth > 0 && availableWidth < 800) {
+          const newScale = availableWidth / 800;
+          setScale(newScale);
+          
+          if (labelRef.current) {
+            setScaledHeight(`${labelRef.current.offsetHeight * newScale}px`);
+          }
+        } else {
+          setScale(1);
+          setScaledHeight('auto');
+        }
+      }
+    });
+    
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [result]);
   
   const resetFlow = () => {
     setResult(null);
@@ -152,7 +182,7 @@ export default function WorkerQrPage() {
   // --- STAGE 3: RESULT ---
   if (result) {
     return (
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="max-w-[864px] mx-auto space-y-6">
         <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6 text-center shadow-sm">
           <div className="mx-auto w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
             <CheckCircle2 className="h-6 w-6 text-emerald-600" />
@@ -163,16 +193,32 @@ export default function WorkerQrPage() {
           </p>
         </div>
 
-        <div className="bg-white p-4 sm:p-8 rounded-xl shadow-lg border border-slate-200 print-mode overflow-x-auto max-w-full">
-          <div ref={labelRef} className="bg-white inline-block min-w-max">
-            <LabelRenderer 
-              qrSvg={result.qrRepresentationSvg}
-              prc={result.productReferenceCode}
-              payloadData={formData as Record<string, string | number>}
-            />
+        <div 
+          ref={containerRef}
+          className="bg-white p-0 sm:p-0 rounded-xl shadow-lg border border-slate-200 print-mode overflow-hidden max-w-full flex justify-center"
+        >
+          {/* We apply padding directly here, and wrap the scaled element */}
+          <div className="w-full p-4 sm:p-8" style={{ height: scale < 1 ? scaledHeight : 'auto' }}>
+            <div 
+              className="origin-top-left sm:origin-top" 
+              style={{ 
+                transform: `scale(${scale})`, 
+                width: '800px',
+                margin: scale < 1 ? '0' : '0 auto'
+              }}
+            >
+              <div ref={labelRef} className="bg-white inline-block">
+                <LabelRenderer 
+                  qrSvg={result.qrRepresentationSvg}
+                  prc={result.productReferenceCode}
+                  payloadData={formData as Record<string, string | number>}
+                />
+              </div>
+            </div>
           </div>
+        </div>
           
-          <div className="mt-8 flex flex-col sm:flex-row gap-3 pt-6 border-t border-slate-100 print:hidden">
+        <div className="mt-8 flex flex-col sm:flex-row gap-3 pt-6 border-t border-slate-100 print:hidden">
             <Button onClick={printQr} className="flex-1 bg-slate-900 text-white hover:bg-slate-800" size="lg">
               <Printer className="mr-2 h-5 w-5" /> Print Label
             </Button>
