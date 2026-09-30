@@ -11,12 +11,14 @@ export class QRPayloadService {
    * @param formData The validated form data (key-value pairs).
    * @param prc The authoritative server-generated Product Reference Code.
    * @param sscc The authoritative server-generated SSCC.
+   * @param requestBaseUrl Optional dynamic base URL from request headers.
    */
   static buildPayload(
     formDefinition: FormDefinition,
     formData: Record<string, unknown>,
     prc: string,
-    sscc: string
+    sscc: string,
+    requestBaseUrl?: string
   ): string {
     if (!ProductReferenceService.isValidPrc(prc)) {
       throw new Error('Invalid Product Reference Code provided to QR Payload Builder.');
@@ -58,7 +60,7 @@ export class QRPayloadService {
     // Using base64url encoding makes the QR code significantly less dense than URL encoding.
     const jsonString = JSON.stringify(payloadObject);
     const base64UrlString = Buffer.from(jsonString).toString('base64url');
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const baseUrl = requestBaseUrl || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     return `${baseUrl}/verify?data=${base64UrlString}`;
   }
 }

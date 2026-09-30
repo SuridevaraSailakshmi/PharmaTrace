@@ -9,6 +9,7 @@ export interface TraceabilityGenerationRequest {
   formId: string;
   formData: Record<string, unknown>;
   idempotencyKey?: string;
+  baseUrl?: string;
 }
 
 export interface TraceabilityGenerationResult {
@@ -109,7 +110,8 @@ export class TraceabilityService {
       formDefinition,
       request.formData,
       tempPrc,
-      tempSscc
+      tempSscc,
+      request.baseUrl
     );
     const urlObj = new URL(qrPayloadStr);
     const dataParam = urlObj.searchParams.get('data');
@@ -161,7 +163,8 @@ export class TraceabilityService {
       formDefinition,
       request.formData,
       prcCode,
-      ssccCode
+      ssccCode,
+      request.baseUrl
     );
 
     const finalSvg = await QRGeneratorService.generateSvg(finalQrPayloadStr);

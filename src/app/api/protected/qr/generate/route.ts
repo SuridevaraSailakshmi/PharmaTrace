@@ -19,10 +19,15 @@ export async function POST(request: Request) {
 
     const idempotencyKey = request.headers.get('idempotency-key') || request.headers.get('x-idempotency-key') || body.idempotencyKey;
 
+    const host = request.headers.get('host') || 'localhost:3000';
+    const protocol = request.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
+    const dynamicBaseUrl = `${protocol}://${host}`;
+
     const result = await TraceabilityService.submitAndGenerateQr(user.id, {
       formId: body.formId,
       formData: body.formData,
-      idempotencyKey: idempotencyKey || undefined
+      idempotencyKey: idempotencyKey || undefined,
+      baseUrl: dynamicBaseUrl
     });
 
     return NextResponse.json(result, { status: 201 });

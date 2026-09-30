@@ -4,7 +4,7 @@ import { QRHistoryService } from '@/services/history/history.service';
 import { QRGeneratorService } from '@/services/qr/qr-generator.service';
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -24,7 +24,12 @@ export async function GET(
     // Construct the payload exact same way as generation to make it a scannable URL
     const jsonString = JSON.stringify(result.payload);
     const base64UrlString = Buffer.from(jsonString).toString('base64url');
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    
+    const host = request.headers.get('host') || 'localhost:3000';
+    const protocol = request.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
+    const dynamicBaseUrl = `${protocol}://${host}`;
+    
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || dynamicBaseUrl;
     const payloadStr = `${baseUrl}/verify?data=${base64UrlString}`;
 
     // Regenerate QR representation cleanly (deterministic generation guarantees identical matrix)
