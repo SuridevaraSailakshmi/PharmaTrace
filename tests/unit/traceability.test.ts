@@ -48,7 +48,10 @@ describe('TraceabilityService', () => {
       extension_digit: '0',
       gs1_company_prefix: '0614141'
     } as any);
-    vi.mocked(QRPayloadService.buildPayload).mockReturnValue('http://localhost:3000/verify?data=%7B%22v%22%3A1%2C%22data%22%3A%7B%7D%7D');
+    vi.mocked(QRPayloadService.buildPayload).mockReturnValue({
+      jsonPayload: '{}',
+      readableText: 'mock readable text'
+    });
     vi.mocked(QRGeneratorService.generateSvg).mockResolvedValue({ svg: '<svg/>', payload: '' });
     vi.mocked(QRGeneratorService.generatePng).mockResolvedValue('data:image/png');
 

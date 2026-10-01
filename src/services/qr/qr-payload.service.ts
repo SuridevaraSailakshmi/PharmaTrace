@@ -18,7 +18,7 @@ export class QRPayloadService {
     formData: Record<string, unknown>,
     prc: string,
     sscc: string,
-    requestBaseUrl?: string
+    _requestBaseUrl?: string
   ): { jsonPayload: string; readableText: string } {
     if (!ProductReferenceService.isValidPrc(prc)) {
       throw new Error('Invalid Product Reference Code provided to QR Payload Builder.');

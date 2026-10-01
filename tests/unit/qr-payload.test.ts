@@ -28,10 +28,8 @@ describe('QRPayloadService', () => {
       f5: 42
     };
 
-    const payload = QRPayloadService.buildPayload(mockForm, formData, validPrc, validSscc);
-    const urlObj = new URL(payload);
-    const dataParam = urlObj.searchParams.get('data');
-    const parsed = JSON.parse(decodeURIComponent(dataParam!));
+    const payloadResult = QRPayloadService.buildPayload(mockForm, formData, validPrc, validSscc);
+    const parsed = JSON.parse(payloadResult.jsonPayload);
 
     expect(parsed.v).toBe(1);
     expect(parsed.prc).toBe(validPrc);
@@ -46,6 +44,12 @@ describe('QRPayloadService', () => {
     // prc and sscc are NOT duplicated inside data
     expect(parsed.data.prc).toBeUndefined();
     expect(parsed.data.sscc).toBeUndefined();
+    
+    // Check readableText
+    expect(payloadResult.readableText).toContain('PRC: ' + validPrc);
+    expect(payloadResult.readableText).toContain('SSCC: ' + validSscc);
+    expect(payloadResult.readableText).toContain('Field 1: test_value');
+    expect(payloadResult.readableText).not.toContain('Field 2:');
   });
 
   it('preserves null for missing included values', () => {
@@ -54,10 +58,8 @@ describe('QRPayloadService', () => {
       // f5 is missing
     };
 
-    const payload = QRPayloadService.buildPayload(mockForm, formData, validPrc, validSscc);
-    const urlObj = new URL(payload);
-    const dataParam = urlObj.searchParams.get('data');
-    const parsed = JSON.parse(decodeURIComponent(dataParam!));
+    const payloadResult = QRPayloadService.buildPayload(mockForm, formData, validPrc, validSscc);
+    const parsed = JSON.parse(payloadResult.jsonPayload);
 
     expect(parsed.data.f5).toBeNull(); // Missing but included
   });
@@ -68,10 +70,8 @@ describe('QRPayloadService', () => {
       f5: 0
     };
 
-    const payload = QRPayloadService.buildPayload(mockForm, formData, validPrc, validSscc);
-    const urlObj = new URL(payload);
-    const dataParam = urlObj.searchParams.get('data');
-    const parsed = JSON.parse(decodeURIComponent(dataParam!));
+    const payloadResult = QRPayloadService.buildPayload(mockForm, formData, validPrc, validSscc);
+    const parsed = JSON.parse(payloadResult.jsonPayload);
 
     expect(parsed.data.f5).toBe(0);
   });
@@ -102,6 +102,6 @@ describe('QRPayloadService', () => {
     const payload1 = QRPayloadService.buildPayload(mockForm2, formData1, validPrc, validSscc);
     const payload2 = QRPayloadService.buildPayload(mockForm2, formData2, validPrc, validSscc);
 
-    expect(payload1).toBe(payload2);
+    expect(payload1.jsonPayload).toBe(payload2.jsonPayload);
   });
 });

@@ -1,9 +1,8 @@
 'use server';
 
 import { createServiceClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
 
-export async function register(formData: FormData) {
+export async function register(formData: FormData): Promise<{ error?: string; success?: boolean; autoActivated?: boolean }> {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
   const fullName = formData.get('fullName') as string;
@@ -17,7 +16,7 @@ export async function register(formData: FormData) {
   const supabase = createServiceClient();
 
   // Check if any active admin exists
-  const { count, error: countError } = await supabase
+  const { count } = await supabase
     .from('users')
     .select('*', { count: 'exact', head: true })
     .eq('role_id', 'ADMIN')
