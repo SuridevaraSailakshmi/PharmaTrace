@@ -46,7 +46,7 @@ export async function register(formData: FormData): Promise<{ error?: string; su
       full_name: fullName,
       role_id: requestedRole,
       is_active: isFirstAdmin, // First admin is active, others require verification
-    });
+    } as any);
 
   if (dbError) {
     // Rollback auth user creation if database insert fails
