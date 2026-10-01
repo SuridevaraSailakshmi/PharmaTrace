@@ -21,16 +21,20 @@ export async function GET(
     // Fetch the detail record
     const result = await QRHistoryService.getRecord(user.id, resolvedParams.id);
     
-    // Construct the payload exact same way as generation to make it a scannable URL
-    const jsonString = JSON.stringify(result.payload);
-    const base64UrlString = Buffer.from(jsonString).toString('base64url');
+    const lines = [];
+    lines.push('PHARMATRACE RECORD');
+    lines.push(`PRC: ${result.product_reference_code}`);
+    lines.push(`SSCC: ${result.sscc}`);
+    lines.push('---');
     
-    const host = request.headers.get('host') || 'localhost:3000';
-    const protocol = request.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
-    const dynamicBaseUrl = `${protocol}://${host}`;
-    
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || dynamicBaseUrl;
-    const payloadStr = `${baseUrl}/verify?data=${base64UrlString}`;
+    // Result fields are already sorted by sort_order from the database
+    if (result.fields && Array.isArray(result.fields)) {
+      for (const field of result.fields) {
+        if (field.field_key === 'prc' || field.field_key === 'sscc') continue;
+        lines.push(`${field.label}: ${field.value || 'N/A'}`);
+      }
+    }
+    const payloadStr = lines.join('\n');
 
     // Regenerate QR representation cleanly (deterministic generation guarantees identical matrix)
     const svgRes = await QRGeneratorService.generateSvg(payloadStr);
