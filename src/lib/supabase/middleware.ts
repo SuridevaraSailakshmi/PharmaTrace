@@ -42,7 +42,7 @@ export async function updateSession(request: NextRequest) {
   // Basic Route Protection
   // Exclude auth routes and api routes (api handles its own explicit auth)
   const isApiRoute = request.nextUrl.pathname.startsWith('/api');
-  const isAuthRoute = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/forgot-password') || request.nextUrl.pathname.startsWith('/reset-password');
+  const isAuthRoute = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register') || request.nextUrl.pathname.startsWith('/forgot-password') || request.nextUrl.pathname.startsWith('/reset-password');
   
   if (!user && !isAuthRoute && !isApiRoute && request.nextUrl.pathname !== '/') {
     // Redirect unauthenticated users to login for protected UI routes

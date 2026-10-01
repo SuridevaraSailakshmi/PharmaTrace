@@ -19,7 +19,7 @@ export class QRPayloadService {
     prc: string,
     sscc: string,
     requestBaseUrl?: string
-  ): string {
+  ): { jsonPayload: string; readableText: string } {
     if (!ProductReferenceService.isValidPrc(prc)) {
       throw new Error('Invalid Product Reference Code provided to QR Payload Builder.');
     }
@@ -55,12 +55,24 @@ export class QRPayloadService {
       data: qrData
     };
 
-    // 4. Return strictly deterministic JSON serialization wrapped in a scannable URL.
-    // This allows phone cameras to open the verification page natively.
-    // Using base64url encoding makes the QR code significantly less dense than URL encoding.
-    const jsonString = JSON.stringify(payloadObject);
-    const base64UrlString = Buffer.from(jsonString).toString('base64url');
-    const baseUrl = requestBaseUrl || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    return `${baseUrl}/verify?data=${base64UrlString}`;
+    // 4. Return strictly deterministic JSON serialization and readable text.
+    const jsonPayload = JSON.stringify(payloadObject, null, 2);
+
+    // Build readable text for Google Scanner
+    const lines = [];
+    lines.push('PHARMATRACE RECORD');
+    lines.push(`PRC: ${prc}`);
+    lines.push(`SSCC: ${sscc}`);
+    lines.push('---');
+    for (const field of sortedFields) {
+      if (!field.includeInQr) continue;
+      if (field.fieldKey === 'prc' || field.fieldKey === 'sscc') continue;
+      
+      const rawValue = formData[field.fieldKey];
+      lines.push(`${field.label}: ${rawValue || 'N/A'}`);
+    }
+    const readableText = lines.join('\n');
+
+    return { jsonPayload, readableText };
   }
 }

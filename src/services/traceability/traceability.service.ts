@@ -106,21 +106,18 @@ export class TraceabilityService {
     // 5. Pre-build template QR Payload with temporary placeholders for memory SVG generation validation
     const tempPrc = 'PRC-9999-999999';
     const tempSscc = '000000000000000000';
-    const qrPayloadStr = QRPayloadService.buildPayload(
+    const tempPayloads = QRPayloadService.buildPayload(
       formDefinition,
       request.formData,
       tempPrc,
       tempSscc,
       request.baseUrl
     );
-    const urlObj = new URL(qrPayloadStr);
-    const dataParam = urlObj.searchParams.get('data');
-    const decodedJsonStr = dataParam ? Buffer.from(dataParam, 'base64url').toString('utf8') : '{}';
-    const qrPayloadObj = JSON.parse(decodedJsonStr);
+    const qrPayloadObj = JSON.parse(tempPayloads.jsonPayload);
 
     // 6. Generate QR Images safely in memory before starting DB transaction
-    await QRGeneratorService.generateSvg(qrPayloadStr);
-    await QRGeneratorService.generatePng(qrPayloadStr);
+    await QRGeneratorService.generateSvg(tempPayloads.readableText);
+    await QRGeneratorService.generatePng(tempPayloads.readableText);
 
     // 7. Execute Single Atomic DB RPC Transaction
     interface RpcClient {
@@ -159,7 +156,7 @@ export class TraceabilityService {
     const ssccCode = (qrRecord.sscc_records as unknown as {sscc: string}).sscc;
 
     // Re-render QR SVGs/PNGs with exact generated PRC & SSCC for return payload
-    const finalQrPayloadStr = QRPayloadService.buildPayload(
+    const finalPayloads = QRPayloadService.buildPayload(
       formDefinition,
       request.formData,
       prcCode,
@@ -167,15 +164,15 @@ export class TraceabilityService {
       request.baseUrl
     );
 
-    const finalSvg = await QRGeneratorService.generateSvg(finalQrPayloadStr);
-    const finalPng = await QRGeneratorService.generatePng(finalQrPayloadStr);
+    const finalSvg = await QRGeneratorService.generateSvg(finalPayloads.readableText);
+    const finalPng = await QRGeneratorService.generatePng(finalPayloads.readableText);
 
     const result: TraceabilityGenerationResult = {
       qrRecordId: qrRecord.id,
       submissionId: qrRecord.submission_id,
       productReferenceCode: prcCode,
       sscc: ssccCode,
-      qrPayload: finalQrPayloadStr,
+      qrPayload: finalPayloads.jsonPayload,
       qrRepresentationSvg: finalSvg.svg,
       qrRepresentationPng: finalPng,
       createdAt: qrRecord.created_at

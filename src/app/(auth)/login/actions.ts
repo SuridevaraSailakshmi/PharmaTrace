@@ -39,7 +39,7 @@ export async function login(formData: FormData) {
 
     if (!(appUser as { is_active: boolean }).is_active) {
       await supabase.auth.signOut();
-      return { error: 'Your account has been deactivated.' };
+      return { error: 'Your account is pending verification by an administrator or has been deactivated.' };
     }
   }
 

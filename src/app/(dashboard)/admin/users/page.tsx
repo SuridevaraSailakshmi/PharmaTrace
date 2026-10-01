@@ -151,7 +151,7 @@ export default function AdminUsersPage() {
                     <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">No users found.</TableCell>
                   </TableRow>
                 ) : (
-                  users.filter(u => u.roleId !== 'ADMIN').map((u) => (
+                  users.map((u) => (
                     <TableRow key={u.id}>
                       <TableCell>
                         <div className="font-medium">{u.fullName || 'No Name'}</div>

@@ -140,6 +140,15 @@ export default function LoginPage() {
             <div className="pt-2">
               <SubmitButton />
             </div>
+
+            <div className="text-center mt-4">
+              <p className="text-sm text-muted-foreground">
+                Don't have an account?{' '}
+                <Link href="/register" className="font-medium text-primary hover:underline">
+                  Sign up
+                </Link>
+              </p>
+            </div>
           </form>
           
           <div className="pt-6 text-center">
