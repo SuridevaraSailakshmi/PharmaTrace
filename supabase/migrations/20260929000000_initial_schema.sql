@@ -13,6 +13,7 @@ CREATE TABLE public.permissions (
     description TEXT
 );
 
+
 -- ROLE_PERMISSIONS
 CREATE TABLE public.role_permissions (
     role_id VARCHAR(50) REFERENCES public.roles(id) ON DELETE CASCADE,
