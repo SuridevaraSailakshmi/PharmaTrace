@@ -4,7 +4,7 @@ import { QRHistoryService } from '@/services/history/history.service';
 import { QRGeneratorService } from '@/services/qr/qr-generator.service';
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -23,14 +23,14 @@ export async function GET(
     
     const lines = [];
     lines.push('PHARMATRACE RECORD');
-    lines.push(`PRC: ${result.product_reference_code}`);
+    lines.push(`PRC: ${result.productReferenceCode}`);
     lines.push(`SSCC: ${result.sscc}`);
     lines.push('---');
     
     // Result fields are already sorted by sort_order from the database
     if (result.fields && Array.isArray(result.fields)) {
       for (const field of result.fields) {
-        if (field.field_key === 'prc' || field.field_key === 'sscc') continue;
+        if (field.fieldKey === 'product_reference_code' || field.fieldKey === 'sscc') continue;
         lines.push(`${field.label}: ${field.value || 'N/A'}`);
       }
     }

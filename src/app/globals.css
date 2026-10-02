@@ -154,9 +154,10 @@ input:-webkit-autofill:active{
   /* specifically ensure label renderer is properly styled in print */
   .print-mode .bg-white {
     border: 3px solid black !important;
-    width: 800px !important;
-    max-width: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
     overflow: visible !important;
+    page-break-inside: avoid !important;
   }
   .print-mode [style*="transform"] {
     transform: none !important;

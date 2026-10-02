@@ -1,6 +1,7 @@
 'use server';
 
 import { createServiceClient } from '@/lib/supabase/server';
+import { Database } from '@/types/database';
 
 export async function register(formData: FormData): Promise<{ error?: string; success?: boolean; autoActivated?: boolean }> {
   const email = formData.get('email') as string;
@@ -13,7 +14,7 @@ export async function register(formData: FormData): Promise<{ error?: string; su
 
   const requestedRole = formData.get('roleId') as string || 'WORKER';
 
-  const supabase = createServiceClient();
+  const supabase = createServiceClient() as import('@supabase/supabase-js').SupabaseClient<Database>;
 
   // Check if any active admin exists
   const { count } = await supabase
@@ -37,16 +38,16 @@ export async function register(formData: FormData): Promise<{ error?: string; su
 
   const user = authData.user;
 
-  // Insert into public.users
   const { error: dbError } = await supabase
     .from('users')
-    .insert({
+    // @ts-expect-error - Documented justification: Supabase createServerClient generic inference fails on 'users' table returning never[] due to conflicts with auth.users. The payload matches the schema.
+    .insert([{
       id: user.id,
       email: user.email,
       full_name: fullName,
       role_id: requestedRole,
       is_active: isFirstAdmin, // First admin is active, others require verification
-    } as any);
+    }]);
 
   if (dbError) {
     // Rollback auth user creation if database insert fails

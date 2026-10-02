@@ -16,7 +16,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     const form = await FormsService.getFormById(user.id, id);
     return NextResponse.json(form);
   } catch (error: any) {
-    if (error.message === 'Unauthorized' || error.message === 'Unauthorized to view draft forms') {
+    if (error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
     if (error.message.includes('not found')) {

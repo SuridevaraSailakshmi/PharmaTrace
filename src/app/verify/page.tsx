@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { LabelRenderer } from '@/components/qr/LabelRenderer';
 import { QRPayload } from '@/services/qr/qr.types';
@@ -9,13 +9,25 @@ import { useRef } from 'react';
 
 function VerifyContent() {
   const searchParams = useSearchParams();
-  const [payload, setPayload] = useState<QRPayload | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
   const [scale, setScale] = useState(1);
   const [scaledHeight, setScaledHeight] = useState('auto');
   const containerRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
+
+  const dataParam = searchParams.get('data');
+  const { payload, error } = useMemo(() => {
+    if (!dataParam) return { payload: null, error: 'No QR data found in the URL.' };
+    try {
+      const decodedJson = Buffer.from(dataParam, 'base64url').toString('utf8');
+      const parsed = JSON.parse(decodedJson) as QRPayload;
+      if (!parsed.v || !parsed.prc || !parsed.sscc || !parsed.data) {
+        throw new Error('Invalid format');
+      }
+      return { payload: parsed, error: null };
+    } catch {
+      return { payload: null, error: 'Failed to decode or parse QR data.' };
+    }
+  }, [dataParam]);
 
   useEffect(() => {
     if (!payload || !containerRef.current) return;
@@ -40,28 +52,6 @@ function VerifyContent() {
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, [payload]);
-
-  useEffect(() => {
-    const dataParam = searchParams.get('data');
-    if (!dataParam) {
-      setError('No QR data found in the URL.');
-      return;
-    }
-
-    try {
-      // Decode the base64url payload back to JSON
-      const decodedJson = Buffer.from(dataParam, 'base64url').toString('utf8');
-      const parsed = JSON.parse(decodedJson) as QRPayload;
-      
-      if (!parsed.v || !parsed.prc || !parsed.sscc || !parsed.data) {
-        throw new Error('Invalid QR payload format.');
-      }
-      
-      setPayload(parsed);
-    } catch (e) {
-      setError('Failed to decode or parse QR data.');
-    }
-  }, [searchParams]);
 
   if (error) {
     return (

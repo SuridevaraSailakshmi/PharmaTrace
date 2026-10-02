@@ -38,7 +38,7 @@ export class QRPayloadService {
       if (!field.includeInQr) continue;
 
       // Ensure PRC and SSCC are exclusively at the root, not duplicated in data
-      if (field.fieldKey === 'prc' || field.fieldKey === 'sscc') continue;
+      if (field.fieldKey === 'product_reference_code' || field.fieldKey === 'sscc') continue;
 
       const rawValue = formData[field.fieldKey];
 
@@ -66,7 +66,7 @@ export class QRPayloadService {
     lines.push('---');
     for (const field of sortedFields) {
       if (!field.includeInQr) continue;
-      if (field.fieldKey === 'prc' || field.fieldKey === 'sscc') continue;
+      if (field.fieldKey === 'product_reference_code' || field.fieldKey === 'sscc') continue;
       
       const rawValue = formData[field.fieldKey];
       lines.push(`${field.label}: ${rawValue || 'N/A'}`);

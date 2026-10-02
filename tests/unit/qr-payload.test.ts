@@ -10,7 +10,7 @@ describe('QRPayloadService', () => {
     fields: [
       { id: 'f1', label: 'Field 1', fieldKey: 'f1', fieldType: 'short_text', isRequired: true, sortOrder: 1, includeInQr: true, config: {} },
       { id: 'f2', label: 'Field 2', fieldKey: 'f2', fieldType: 'short_text', isRequired: false, sortOrder: 2, includeInQr: false, config: {} },
-      { id: 'f3', label: 'PRC', fieldKey: 'prc', fieldType: 'system_generated', isRequired: true, sortOrder: 3, includeInQr: true, config: {} },
+      { id: 'f3', label: 'PRC', fieldKey: 'product_reference_code', fieldType: 'system_generated', isRequired: true, sortOrder: 3, includeInQr: true, config: {} },
       { id: 'f4', label: 'SSCC', fieldKey: 'sscc', fieldType: 'system_generated', isRequired: true, sortOrder: 4, includeInQr: true, config: {} },
       { id: 'f5', label: 'Field 5', fieldKey: 'f5', fieldType: 'integer', isRequired: false, sortOrder: 5, includeInQr: true, config: {} },
     ]
@@ -42,7 +42,7 @@ describe('QRPayloadService', () => {
     expect(parsed.data.f2).toBeUndefined();
 
     // prc and sscc are NOT duplicated inside data
-    expect(parsed.data.prc).toBeUndefined();
+    expect(parsed.data.product_reference_code).toBeUndefined();
     expect(parsed.data.sscc).toBeUndefined();
     
     // Check readableText

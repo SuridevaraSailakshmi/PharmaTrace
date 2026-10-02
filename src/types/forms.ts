@@ -21,7 +21,6 @@ export type FormFieldType =
   | 'section'
   | 'system_generated';
 
-export type FormStatus = 'draft' | 'published' | 'archived';
 /** Form field configuration */
 export interface FormFieldConfig {
   placeholder?: string;

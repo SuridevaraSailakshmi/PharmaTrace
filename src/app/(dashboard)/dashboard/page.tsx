@@ -33,13 +33,13 @@ export default async function DashboardPage() {
                   Create a new cryptographically secure QR payload and generate globally unique Product Reference Codes and SSCCs for pharmaceutical batches.
                 </p>
               </div>
-              <Button asChild size="lg" className="px-8 shadow-sm group">
-                <Link href="/worker/qr">
+              <Link href="/worker/qr">
+                <Button size="lg" className="px-8 shadow-sm group">
                   <QrCode className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
                   Initialize Generation
                   <ArrowRight className="ml-2 h-4 w-4 opacity-70 group-hover:opacity-100 transition-opacity" />
-                </Link>
-              </Button>
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         )}

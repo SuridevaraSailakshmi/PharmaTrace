@@ -1,13 +1,11 @@
 import * as React from "react"
 import { Badge } from "./badge"
-import { CheckCircle2, XCircle, AlertCircle, Clock, Archive } from "lucide-react"
+import { CheckCircle2, XCircle, AlertCircle, Archive } from "lucide-react"
 
 export type StatusType = 
   | "GENERATED" 
   | "VOID" 
   | "CANCELLED" 
-  | "DRAFT" 
-  | "PUBLISHED" 
   | "ARCHIVED" 
   | "ACTIVE" 
   | "INACTIVE";
@@ -20,14 +18,12 @@ interface StatusBadgeProps {
 export function StatusBadge({ status, className }: StatusBadgeProps) {
   const config: Record<StatusType, { variant: "success" | "destructive" | "warning" | "info" | "secondary", icon: React.ElementType }> = {
     GENERATED: { variant: "success", icon: CheckCircle2 },
-    PUBLISHED: { variant: "success", icon: CheckCircle2 },
     ACTIVE: { variant: "success", icon: CheckCircle2 },
     
     VOID: { variant: "destructive", icon: XCircle },
     CANCELLED: { variant: "destructive", icon: XCircle },
     INACTIVE: { variant: "destructive", icon: XCircle },
     
-    DRAFT: { variant: "warning", icon: Clock },
     
     ARCHIVED: { variant: "secondary", icon: Archive },
   };

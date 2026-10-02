@@ -64,9 +64,7 @@ export const LabelRenderer = forwardRef<HTMLDivElement, LabelRendererProps>(
               </div>
             </div>
 
-            <div className="mt-8 text-[12px] font-bold tracking-wider">
-              WH/SOP/011/F-03/07-01-01-2025
-            </div>
+
             <div className="mt-4 text-[13px] font-semibold">
               Product Reference Code: {prc}
             </div>
